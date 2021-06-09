@@ -37,21 +37,17 @@ sudo curl -o /usr/bin/chrome-session-dump -L 'https://github.com/lemnos/chrome-s
 
 ```
 # chrome-session-dump # Print the url of all tabs found in the session in order.
-
 https://ddg.gg
 https://protonmail.com
 
-chrome-session-dump -active # Print the url of the most recently active tab
-
+# chrome-session-dump -active # Print the url of the most recently active tab
 https://protonmail.com
 
-chrome-session-dump -printf '%t\n'
-
+# chrome-session-dump -printf '%t\n'
 Secure email: ProtonMail is free encrypted email.
 DuckDuckGo — Privacy, simplified.
 
-chrome-session-dump -deleted -history|grep 'chrome-session-dump' # Search history of all (potentially deleted) tabs for a url containing the given expression.
-
+# chrome-session-dump -deleted -history|grep 'chrome-session-dump' # Search the history of all (potentially deleted) tabs for a url containing the given expression.
 https://github.com/lemnos/chrome-session-dump
 ```
 
@@ -60,8 +56,8 @@ look for the most recent session file in ~/.config/chrome.
 
 # Caveats
 
-Won't work on incognito tabs (since they are not persisted to disk).
-The output lags behind changes by a few milliseconds since chrome does not immediately flush changes to disk.
+- Won't work on incognito tabs (since they are not persisted to disk).
+- The output lags behind changes by a few milliseconds since chrome does not immediately flush changes to disk.
 
 # To whom it may concern
 
