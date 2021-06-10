@@ -24,13 +24,13 @@ Binaries are also available for linux and macOS.
 ## Linux
 
 ```
-sudo curl -o /usr/bin/chrome-session-dump -L 'https://github.com/lemnos/chrome-session-dump/releases/download/v0.0.1/chrome-session-dump-linux' && sudo chmod 755 /usr/bin/chrome-session-dump
+sudo curl -o /usr/bin/chrome-session-dump -L 'https://github.com/lemnos/chrome-session-dump/releases/download/v0.0.2/chrome-session-dump-linux' && sudo chmod 755 /usr/bin/chrome-session-dump
 ```
 
 ## macOS
 
 ```
-sudo curl -o /usr/bin/chrome-session-dump -L 'https://github.com/lemnos/chrome-session-dump/releases/download/v0.0.1/chrome-session-dump-osx' && sudo chmod 755 /usr/bin/chrome-session-dump
+sudo curl -o /usr/bin/chrome-session-dump -L 'https://github.com/lemnos/chrome-session-dump/releases/download/v0.0.2/chrome-session-dump-osx' && sudo chmod 755 /usr/bin/chrome-session-dump
 ```
 
 # Usage
