@@ -498,7 +498,7 @@ func main() {
 
 	flag.BoolVar(&jsonFlag, "json", false, "Produce json formatted output. Note that this includes all tabs along with their history and any corresponding metadata. Useful for other scripts.")
 	flag.BoolVar(&activeFlag, "active", false, "Print the currently active tab.")
-	flag.StringVar(&outputFmt, "printf", "%u\n", "The output format for tabs if -json is not specified. %u corresponds to the tab url while %t corresponds to its title.")
+	flag.StringVar(&outputFmt, "printf", "%u\n", "The output format for tabs if -json is not specified (%u = url, %t = title, %g = group).")
 
 	flag.BoolVar(&deletedFlag, "deleted", false, "Include tabs which have been deleted.")
 	flag.BoolVar(&historyFlag, "history", false, "Include the history of each tab in the output.")
