@@ -45,6 +45,8 @@ const (
 	kCommandUpdateTabNavigation        = 6
 	kCommandSetSelectedTabInIndex      = 8
 	kCommandSetTabWindow               = 0
+	kCommandSetTabGroup                = 25
+	kCommandSetTabGroupMetadata2       = 27
 	kCommandSetSelectedNavigationIndex = 7
 	kCommandTabClosed                  = 16
 	kCommandWindowClosed               = 17
@@ -52,6 +54,12 @@ const (
 	kCommandSetActiveWindow            = 20
 	kCommandLastActiveTime             = 21
 )
+
+type group struct {
+	high uint64
+	low  uint64
+	name string
+}
 
 type window struct {
 	activeTabIdx uint32
@@ -73,11 +81,13 @@ type tab struct {
 	win               uint32 //the id of the window to which the tab belongs
 	deleted           bool
 	currentHistoryIdx uint32
+	group             *group //May be null
 }
 
 //indexed by id
 var tabs = map[uint32]*tab{}
 var windows = map[uint32]*window{}
+var groups = map[string]*group{}
 
 func getWindow(id uint32) *window {
 	if _, ok := windows[id]; !ok {
@@ -85,6 +95,15 @@ func getWindow(id uint32) *window {
 	}
 
 	return windows[id]
+}
+
+func getGroup(high uint64, low uint64) *group {
+	key := fmt.Sprintf("%x%x", high, low)
+	if _, ok := groups[key]; !ok {
+		groups[key] = &group{high, low, "unnamed"}
+	}
+
+	return groups[key]
 }
 
 func getTab(id uint32) *tab {
@@ -209,6 +228,7 @@ type Tab struct {
 	Url     string         `json:"url"`
 	Title   string         `json:"title"`
 	Deleted bool           `json:"deleted"`
+	Group   string         `json:"group"`
 }
 
 type Window struct {
@@ -274,6 +294,10 @@ func parse(path string) Result {
 			break
 		}
 
+		//Note: Some commands are pickled whilst others are raw struct
+		//dumps from memory, the former have a 32 bit size header whilst the
+		//latter may include padding between members.
+
 		switch typ {
 		case kCommandUpdateTabNavigation:
 			readUint32(data) //size of the data (again)
@@ -305,6 +329,22 @@ func parse(path string) Result {
 			idx := readUint32(data)
 
 			getWindow(id).activeTabIdx = idx
+		case kCommandSetTabGroupMetadata2:
+			readUint32(data) //Size
+
+			high := readUint64(data)
+			low := readUint64(data)
+
+			name := readString16(data)
+			getGroup(high, low).name = name
+		case kCommandSetTabGroup:
+			id := readUint32(data)
+			readUint32(data) //Struct padding
+
+			high := readUint64(data)
+			low := readUint64(data)
+
+			getTab(id).group = getGroup(high, low)
 		case kCommandSetTabWindow:
 			win := readUint32(data)
 			id := readUint32(data)
@@ -362,7 +402,7 @@ func parse(path string) Result {
 
 		idx := 0
 		for _, t := range w.tabs {
-			T := &Tab{Active: idx == int(w.activeTabIdx), Deleted: t.deleted}
+			T := &Tab{Active: idx == int(w.activeTabIdx), Deleted: t.deleted, Group: t.group.name}
 
 			for _, h := range t.history {
 				T.History = append(T.History, &HistoryItem{h.url, h.title})
@@ -429,6 +469,7 @@ func tabPrintf(format string, tab *Tab, includeHistory bool) {
 	if includeHistory {
 		for _, item := range tab.History {
 			s := strings.Replace(format, "%u", item.Url, -1)
+			s = strings.Replace(s, "%g", tab.Group, -1)
 			s = strings.Replace(s, "%t", item.Title, -1)
 			s = strings.Replace(s, "\\n", "\n", -1)
 			s = strings.Replace(s, "\\t", "\t", -1)
@@ -438,6 +479,7 @@ func tabPrintf(format string, tab *Tab, includeHistory bool) {
 		}
 	} else {
 		s := strings.Replace(format, "%u", tab.Url, -1)
+		s = strings.Replace(s, "%g", tab.Group, -1)
 		s = strings.Replace(s, "%t", tab.Title, -1)
 		s = strings.Replace(s, "\\n", "\n", -1)
 		s = strings.Replace(s, "\\t", "\t", -1)
