@@ -100,7 +100,7 @@ func getWindow(id uint32) *window {
 func getGroup(high uint64, low uint64) *group {
 	key := fmt.Sprintf("%x%x", high, low)
 	if _, ok := groups[key]; !ok {
-		groups[key] = &group{high, low, "unnamed"}
+		groups[key] = &group{high, low, ""}
 	}
 
 	return groups[key]
