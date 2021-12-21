@@ -509,7 +509,8 @@ func main() {
 	flag.BoolVar(&historyFlag, "history", false, "Include the history of each tab in the output.")
 
 	flag.Usage = func() {
-		fmt.Printf("Usage: chrome-session-dump [options] ([session file] | [chrome dir])\n\n")
+		fmt.Printf("Usage: 
+			   -session-dump [options] ([session file] | [chrome dir])\n\n")
 		fmt.Printf(`If a chrome directory is supplied the most recent session file
 contained within it is used. If neither a directory or file 
 is supplied then the program will use ~/.config/chrome by 
@@ -524,7 +525,7 @@ default
 
 	target := os.ExpandEnv("$HOME/.config/chromium")
 	if _, err := os.Stat(target); os.IsNotExist(err) {
-		target = os.ExpandEnv("$HOME/.config/chrome")
+		target = os.ExpandEnv("$HOME/.config/google-chrome")
 	}
 
 	if len(flag.Args()) >= 1 {
