@@ -524,8 +524,13 @@ default
 	flag.Parse()
 
 	target := os.ExpandEnv("$HOME/.config/chromium")
+
 	if _, err := os.Stat(target); os.IsNotExist(err) {
 		target = os.ExpandEnv("$HOME/.config/google-chrome")
+	}
+
+	if _, err := os.Stat(target); os.IsNotExist(err) {
+		target = os.ExpandEnv("$HOME/.config/chrome")
 	}
 
 	if len(flag.Args()) >= 1 {
