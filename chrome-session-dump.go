@@ -48,6 +48,7 @@ const (
 	kCommandSetTabGroup                = 25
 	kCommandSetTabGroupMetadata2       = 27
 	kCommandSetSelectedNavigationIndex = 7
+	kCommandSetWindowUserTitle         = 31
 	kCommandTabClosed                  = 16
 	kCommandWindowClosed               = 17
 	kCommandSetTabIndexInWindow        = 2
@@ -66,6 +67,7 @@ type window struct {
 	id           uint32
 	deleted      bool
 	tabs         []*tab
+	userTitle    string
 }
 
 type histItem struct {
@@ -232,9 +234,10 @@ type Tab struct {
 }
 
 type Window struct {
-	Tabs    []*Tab `json:"tabs"`
-	Active  bool   `json:"active"`
-	Deleted bool   `json:"deleted"`
+	Tabs      []*Tab `json:"tabs"`
+	Active    bool   `json:"active"`
+	Deleted   bool   `json:"deleted"`
+	UserTitle string `json:"userTitle"`
 }
 
 type HistoryItem struct {
@@ -350,6 +353,12 @@ func parse(path string) Result {
 			id := readUint32(data)
 
 			getTab(id).win = win
+		case kCommandSetWindowUserTitle:
+			readUint32(data) //size of the data (again)
+			id := readUint32(data)
+			title := readString(data)
+
+			getWindow(id).userTitle = title
 		case kCommandWindowClosed:
 			id := readUint32(data)
 
@@ -398,7 +407,7 @@ func parse(path string) Result {
 	var Windows []*Window
 
 	for _, w := range windows {
-		W := &Window{Active: w == activeWindow, Deleted: w.deleted}
+		W := &Window{Active: w == activeWindow, Deleted: w.deleted, UserTitle: w.userTitle}
 
 		idx := 0
 		for _, t := range w.tabs {
